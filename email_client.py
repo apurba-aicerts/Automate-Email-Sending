@@ -2,6 +2,8 @@ import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 from dotenv import load_dotenv
 
 
@@ -15,9 +17,16 @@ class EmailClient:
         self.smtp_server = "smtp.gmail.com"
         self.smtp_port = 587
 
-    def send_email(self, to_email: str, subject: str, body: str):
-        """Send an email using SMTP with TLS."""
+    def send_email(self, 
+                   to_email: str, 
+                   subject: str, 
+                   body: str, 
+                   file_path: str = r"C:\Apurba\Automate-Email-Sending\Apurba_Manna_resume_18_11_2025.pdf"):
+        """
+        Send an email using SMTP with optional file attachments.
 
+        attachments: list of file paths
+        """
         # Build the email message
         msg = MIMEMultipart()
         msg["From"] = self.email_user
@@ -25,29 +34,45 @@ class EmailClient:
         msg["Subject"] = subject
         msg.attach(MIMEText(body, "plain"))
 
+        # Attach files
+        # if attachments:
+        #     for file_path in attachments:
+        if not os.path.isfile(file_path):
+            print(f"⚠️ File not found: {file_path}")
+            # continue
+
+        with open(file_path, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header(
+                "Content-Disposition",
+                f'attachment; filename="{os.path.basename(file_path)}"',
+            )
+            msg.attach(part)
+
         # SMTP flow
         try:
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()
                 server.login(self.email_user, self.email_pass)
                 server.send_message(msg)
-            print("Email sent successfully!")
+            print("✅ Email sent successfully!")
         except Exception as e:
-            print(f"Failed to send email: {e}")
+            print(f"❌ Failed to send email: {e}")
 
 
 if __name__ == "__main__":
-    # Load environment variables
     load_dotenv()
     EMAIL_USER = os.environ.get("EMAIL_USER")
     EMAIL_PASS = os.environ.get("EMAIL_PASS")
 
-    # Initialize client
     client = EmailClient(EMAIL_USER, EMAIL_PASS)
 
-    # Test email
+    # Test email with attachment
     client.send_email(
         to_email="apurba_m@amsc.iitr.ac.in",
-        subject="Automated Update",
-        body="Hello from Python automation using class!"
+        subject="Automated Update with Attachment",
+        body="Hello! Please find the attached document.",
+        # attachments=["resume.pdf"]  # list your files here
     )
