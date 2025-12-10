@@ -10,10 +10,28 @@ logger = logging.getLogger(__name__)
 # ==========================================================
 # Structured Output Schema
 # ==========================================================
-class ApplicationEmailSchema(BaseModel):
+# class ApplicationEmailSchema(BaseModel):
+#     subject_line: str
+#     body: str
+#     HR_email_address: str
+
+from pydantic import BaseModel
+from typing import Optional
+
+class EmailContent(BaseModel):
     subject_line: str
     body: str
     HR_email_address: str
+
+class JobDetails(BaseModel):
+    company_name: Optional[str]
+    job_role: Optional[str]
+    required_experience_years: Optional[str]
+
+class ApplicationEmailSchema(BaseModel):
+    application_email: EmailContent
+    job_details: JobDetails
+
 
 # ==========================================================
 # Main Email Generator Class
@@ -84,15 +102,16 @@ if __name__ == "__main__":
 """
 
     output = generator.generate_application_email(job_description)
-
-    if output:
-        print("--------------------------------------------------")
-        print("📌 Subject Line:")
-        print(output.subject_line)
-        print("\n📌 Body:")
-        print(output.body)
-        print("\n📌 HR Email:")
-        print(output.HR_email_address)
-        print("--------------------------------------------------")
-    else:
-        print("Failed to generate application email.")
+    print("\nGenerated Application Email and Job Details:\n")
+    print(output.model_dump())
+    # if output:
+    #     print("--------------------------------------------------")
+    #     print("📌 Subject Line:")
+    #     print(output.subject_line)
+    #     print("\n📌 Body:")
+    #     print(output.body)
+    #     print("\n📌 HR Email:")
+    #     print(output.HR_email_address)
+    #     print("--------------------------------------------------")
+    # else:
+    #     print("Failed to generate application email.")

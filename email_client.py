@@ -21,7 +21,7 @@ class EmailClient:
                    to_email: str, 
                    subject: str, 
                    body: str, 
-                   file_path: str = r"C:\Apurba\Automate-Email-Sending\Apurba_Manna_resume_18_11_2025.pdf"):
+                   file_path: str = r"Apurba_Manna_resume.pdf"):
         """
         Send an email using SMTP with optional file attachments.
 
